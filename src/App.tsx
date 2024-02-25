@@ -1,26 +1,62 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import {
+  MetaMaskButton,
+  useAccount,
+  useSDK,
+  useSignMessage,
+} from "@metamask/sdk-react-ui";
+import "./App.css";
+
+function AppReady() {
+  const {
+      data: signData,
+      isError: isSignError,
+      isLoading: isSignLoading,
+      isSuccess: isSignSuccess,
+      signMessage,
+  } = useSignMessage({
+      message: "gm wagmi frens",
+  });
+
+  const { isConnected } = useAccount();
+
+  return (
+      <div className="App">
+          <header className="App-header">
+              <MetaMaskButton theme={"light"} color="white"></MetaMaskButton>
+              <nav className="crumbs">
+                <ol>
+                  <li className="crumb"><a href="#">Bikes</a></li>
+                  <li className="crumb"><a href="#">BMX</a></li>
+                  <li className="crumb">Jump Bike 3000</li>
+                </ol>
+              </nav>
+              {isConnected && (
+                  <>
+                      <div style={{ marginTop: 20 }}>
+                          <button
+                              disabled={isSignLoading}
+                              onClick={() => signMessage()}
+                          >
+                              Sign message
+                          </button>
+                          {isSignSuccess && <div>Signature: {signData}</div>}
+                          {isSignError && <div>Error signing message</div>}
+                      </div>
+                  </>
+              )}
+          </header>
+      </div>
+  );
+}
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+  const { ready } = useSDK();
+
+  if (!ready) {
+      return <div>Loading...</div>;
+  }
+
+  return <AppReady />;
 }
 
 export default App;
